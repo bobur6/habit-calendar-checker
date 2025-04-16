@@ -5,6 +5,12 @@ tags:
   - rest
 ---
 
+Week 12
+    docker build -t my-item-service-iso .
+    docker run --name my-item-service-container -p 8888:8080 my-item-service-iso
+    
+    go get -u github.com/joho/godotenv
+
 upd all dependencies:
 
 go mod init rest-project
