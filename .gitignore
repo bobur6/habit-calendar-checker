@@ -11,7 +11,7 @@
 
 # IDE/project folders
 .idea/
-.junie/
+.junie
 
 # Test binary, built with `go test -c`
 
