@@ -1,297 +1,151 @@
----
-tags:
-  - golang
-  - rest-api
-  - rest
----
+# Habits Tracker API
 
-Week 12
-    docker build -t my-item-service-iso .
-    docker run --name my-item-service-container -p 8888:8080 my-item-service-iso
-    
-    go get -u github.com/joho/godotenv
+A RESTful API for tracking habits and daily routines.
 
-upd all dependencies:
+## Features
 
-go mod init rest-project
-go get github.com/gin-gonic/gin
-go get gorm.io/gorm
-go get gorm.io/driver/postgres
-go get github.com/golang-jwt/jwt/v5
-go get github.com/golang-migrate/migrate/v4
-go get github.com/golang-migrate/migrate/v4/database/postgres
-go get github.com/golang-migrate/migrate/v4/source/file
+- User authentication (register, login, profile management)
+- Habit list management
+- Habit tracking with customizable emojis
+- Daily habit checks
+- Role-based access control
+- PostgreSQL database with migrations
+- Docker support
 
-# REST API
+## Prerequisites
 
-REST API (**Representational State Transfer API**) — это **архитектурный стиль** взаимодействия клиента и сервера через
-HTTP, в котором данные передаются в виде ресурсов, а операции над ними выполняются стандартными методами HTTP (**GET,
-POST, PUT, PATCH, DELETE**).
+- Go 1.21 or later
+- Docker and Docker Compose
+- PostgreSQL 15 or later (if running without Docker)
 
-# Gin легковесный фреймворк для создания api
+## Quick Start
 
-**1. Что такое Gin и зачем он нужен?**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/go-rest-project.git
+   cd go-rest-project
+   ```
 
-Gin — это легковесный и высокопроизводительный HTTP-фреймворк на Go, созданный для удобной разработки веб-приложений и
-API.
+2. Create a .env file:
+   ```bash
+   # Database configuration
+   DB_HOST=postgres
+   DB_PORT=5432
+   DB_NAME=habits
+   DB_USER=postgres
+   DB_PASSWORD=postgres
+   DB_SSLMODE=disable
 
-**Преимущества Gin:**
+   # Server configuration
+   PORT=8080
+   GIN_MODE=release
 
-- Высокая скорость (использует net/http и эффективную маршрутизацию)
-- Удобный API и middleware
-- Автоматическая обработка JSON
+   # JWT configuration
+   JWT_SECRET=your-secret-key-change-in-production
+   JWT_EXPIRATION=24h
 
----
+   # Application configuration
+   APP_NAME=Habits Tracker
+   APP_ENV=development
+   APP_DEBUG=false
+   ```
 
-**2. Установка и первый запуск**
+3. Start the application with Docker:
+   ```bash
+   docker-compose up --build
+   ```
 
-**Установка Gin**
-Перед началом работы необходимо установить Gin с помощью go get:
+The API will be available at `http://localhost:8080`
 
-```sh
+## API Endpoints
 
-go get -u github.com/gin-gonic/gin
+### Authentication
 
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login and get JWT token
+
+### User Management
+
+- `GET /api/users/profile` - Get user profile
+- `PUT /api/users/profile` - Update user profile
+- `DELETE /api/users/profile` - Delete user account
+
+### Habit Lists
+
+- `POST /api/habit-lists` - Create a new habit list
+- `GET /api/habit-lists` - Get all user's habit lists
+- `GET /api/habit-lists/{id}` - Get a specific habit list
+- `PUT /api/habit-lists/{id}` - Update a habit list
+- `DELETE /api/habit-lists/{id}` - Delete a habit list
+
+### Habits
+
+- `POST /api/habits` - Create a new habit
+- `GET /api/habits` - Get habits by list
+- `GET /api/habits/{id}` - Get a specific habit
+- `PUT /api/habits/{id}` - Update a habit
+- `DELETE /api/habits/{id}` - Delete a habit
+
+### Habit Checks
+
+- `POST /api/habit-checks` - Create a habit check
+- `GET /api/habit-checks` - Get habit checks
+- `GET /api/habit-checks/{id}` - Get a specific habit check
+- `GET /api/habit-checks/date` - Get habit checks by date
+- `PUT /api/habit-checks/{id}` - Update a habit check
+- `DELETE /api/habit-checks/{id}` - Delete a habit check
+
+## Development
+
+### Running Tests
+```bash
+go test ./...
 ```
 
-**Минимальный пример сервера**
-
-Создадим main.go с простым веб-сервером:
-
-```go
-package main
-
-import "github.com/gin-gonic/gin"
-
-func main() {
-    r := gin.Default() // Создание роутера с логгером и обработчиком ошибок
-
-    r.GET("/", func(c *gin.Context) {
-        c.JSON(200, gin.H{"message": "Hello, Gin!"}) // JSON-ответ
-    })
-
-    r.Run(":8080") // Запуск сервера на порту 8080
-}
+### Running Migrations
+Migrations are automatically run when the application starts. To run them manually:
+```bash
+go run cmd/migrate/main.go
 ```
 
----
-
-**3. Маршрутизация в Gin**
-
-Маршруты в Gin позволяют обрабатывать HTTP-запросы разных типов (GET, POST, PUT, DELETE).
-
-**Примеры маршрутов**
-
-```go
-r.GET("/hello", func(c *gin.Context) {
-    c.String(200, "Hello, World!")
-})
-
-r.POST("/submit", func(c *gin.Context) {
-    name := c.PostForm("name")
-    c.JSON(200, gin.H{"name": name})
-})
-
-r.PUT("/update", func(c *gin.Context) {
-    c.JSON(200, gin.H{"status": "updated"})
-})
-
-r.DELETE("/delete", func(c *gin.Context) {
-    c.JSON(200, gin.H{"status": "deleted"})
-})
+### Project Structure
+```
+.
+├── cmd/
+│   └── main.go
+├── internal/
+│   ├── auth/
+│   ├── db/
+│   │   └── migrations/
+│   ├── delivery/
+│   │   └── handlers/
+│   ├── middleware/
+│   ├── models/
+│   ├── repository/
+│   ├── routes/
+│   └── services/
+├── docker-compose.yml
+├── Dockerfile
+├── go.mod
+└── go.sum
 ```
 
----
+## Security
 
-**4. URL-параметры и Query-параметры**
+- All endpoints except registration and login require JWT authentication
+- Passwords are hashed using bcrypt
+- Database connections are pooled and configured for optimal performance
+- The application runs with a non-root user in Docker
+- Environment variables are used for sensitive configuration
 
-Gin позволяет передавать параметры через URL и query-строку.
+## Contributing
 
-**URL-параметры**
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-```go
-r.GET("/user/:id", func(c *gin.Context) {
-    id := c.Param("id")
-    c.JSON(200, gin.H{"user_id": id})
-})
-```
+## License
 
-Пример запроса
-
-```
-GET /user/123
-```
-
-**Query-параметры**
-
-```go
-r.GET("/search", func(c *gin.Context) {
-    query := c.Query("id")//?id=123.
-    c.JSON(200, gin.H{"search": query})
-})
-```
-
-Пример запроса:
-
-```
-GET /search?id=123
-```
-
-**5. Работа с JSON в Gin**
-
-Gin умеет автоматически парсить JSON-запросы и отправлять JSON-ответы.
-
-**Приём JSON-запросов**
-
-```go
-type User struct {
-    Name  string `json:"name"`
-    Email string `json:"email"`
-}
-
-r.POST("/user", func(c *gin.Context) {
-    var user User
-    if err := c.ShouldBindJSON(&user); err != nil {
-        c.JSON(400, gin.H{"error": err.Error()})
-        return
-    }
-    c.JSON(200, gin.H{"user": user})
-})
-```
-
-# **Введение в GORM**
-
-[GORM](https://gorm.io/) — это **ORM (Object-Relational Mapping) для Go**, позволяющая работать с базами данных удобным
-и декларативным способом. Она поддерживает **PostgreSQL, MySQL, SQLite, SQL Server** и другие СУБД.
-
----
-
-**1. Установка GORM**
-
-Для начала установите GORM и драйвер для нужной базы данных (например, PostgreSQL):
-
-```sh
-
-go get -u gorm.io/gorm
-go get -u gorm.io/driver/postgres
-
-```
-
----
-
-**2. Подключение к базе данных**
-
-Пример подключения к **PostgreSQL**:
-
-```go
-package main
-
-import (
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"log"
-)
-
-func main() {
-	dsn := "host=localhost user=postgres password=secret dbname=mydb port=5432 sslmode=disable"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Ошибка подключения к БД:", err)
-	}
-
-	log.Println("Подключение успешно!")
-}
-```
-
-Замените dsn на свои реальные параметры подключения.
-
----
-
-**3. Определение модели**
-
-В GORM модель — это структура, соответствующая таблице в БД.
-
-```go
-type User struct {
-	ID    uint   `gorm:"primaryKey"`
-	Name  string
-	Email string `gorm:"unique"`
-	Age   int
-}
-```
-
-GORM автоматически создаст таблицу users с колонками id, name, email и age.
-
----
-
-**4. Миграции (Создание таблиц)**
-
-Чтобы создать таблицу, используйте:
-
-```go
-db.AutoMigrate(&User{})
-```
-
-**Важно:** AutoMigrate только добавляет новые поля, но **не удаляет и не изменяет существующие**.
-
----
-
-**5. CRUD-операции в GORM**
-
-**Создание записи**
-
-```go
-user := User{Name: "Beksultan", Email: "beks123@example.com", Age: 20}
-db.Create(&user)
-```
-
-**Чтение данных**
-
-```go
-var user User
-db.First(&user, 1) // Найти пользователя с ID=1
-db.First(&user, "email = ?", "ivan@example.com") // Найти по email
-```
-
-**Обновление записи**
-
-```go
-db.Model(&user).Update("Age", 31)               // Обновить одно поле
-db.Model(&user).Updates(User{Name: "Иван Петров", Age: 32}) // Обновить несколько полей
-```
-
-**Удаление записи**
-
-```go
-db.Delete(&user)
-```
-
----
-
-**6. Фильтрация и сортировка**
-
-```go
-var users []User
-db.Where("age > ?", 25).Find(&users) // Выбрать всех старше 25
-db.Order("age desc").Find(&users)    // Сортировать по возрасту по убыванию
-```
-
----
-
-**7. Работа с связями (1 к 1, 1 ко многим, многие ко многим)**
-
-**Связь “Один ко многим” (User → Posts)**
-
-```go
-type Post struct {
-	ID     uint
-	Title  string
-	UserID uint
-}
-
-type User struct {
-	ID    uint
-	Name  string
-	Posts []Post `gorm:"foreignKey:UserID"`
-}
-```
+This project is licensed under the MIT License - see the LICENSE file for details.

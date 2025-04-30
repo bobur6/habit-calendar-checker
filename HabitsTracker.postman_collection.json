@@ -1,0 +1,385 @@
+{
+  "info": {
+    "_postman_id": "1e5b8c2a-6e9d-4a3e-9e9c-collection-2025",
+    "name": "Habits Tracker API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for testing the Habits Tracker REST API"
+  },
+  "item": [
+    {
+      "name": "Auth: Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"testpass\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Auth: Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpass\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "User: Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/users/profile",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "users", "profile"]
+        }
+      }
+    },
+    {
+      "name": "User: Update Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"updateduser\",\n  \"email\": \"updated@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/users/profile",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "users", "profile"]
+        }
+      }
+    },
+    {
+      "name": "User: Delete Profile",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/users/profile",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "users", "profile"]
+        }
+      }
+    },
+    {
+      "name": "Habit Lists: Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"My List\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/habit-lists",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-lists"]
+        }
+      }
+    },
+    {
+      "name": "Habit Lists: Get All",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habit-lists",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-lists"]
+        }
+      }
+    },
+    {
+      "name": "Habit Lists: Get By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habit-lists/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-lists", "1"]
+        }
+      }
+    },
+    {
+      "name": "Habit Lists: Update",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated List\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/habit-lists/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-lists", "1"]
+        }
+      }
+    },
+    {
+      "name": "Habit Lists: Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habit-lists/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-lists", "1"]
+        }
+      }
+    },
+    {
+      "name": "Habits: Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Drink Water\",\n  \"habit_list_id\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/habits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habits"]
+        }
+      }
+    },
+    {
+      "name": "Habits: Get By List",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habits?list_id=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habits"],
+          "query": [
+            { "key": "list_id", "value": "1" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Habits: Get By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habits/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habits", "1"]
+        }
+      }
+    },
+    {
+      "name": "Habits: Update",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Habit\",\n  \"habit_list_id\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/habits/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habits", "1"]
+        }
+      }
+    },
+    {
+      "name": "Habits: Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habits/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habits", "1"]
+        }
+      }
+    },
+    {
+      "name": "Habit Checks: Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habit_id\": 1,\n  \"date\": \"2025-04-26\",\n  \"emoji\": \"✅\",\n  \"note\": \"Комментарий\",\n  \"is_completed\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/habit-checks",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-checks"]
+        }
+      }
+    },
+    {
+      "name": "Habit Checks: Get By Habit",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habit-checks?habit_id=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-checks"],
+          "query": [
+            { "key": "habit_id", "value": "1" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Habit Checks: Get By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habit-checks/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-checks", "1"]
+        }
+      }
+    },
+    {
+      "name": "Habit Checks: Update",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habit_id\": 1,\n  \"date\": \"2025-04-26\",\n  \"emoji\": \"👍\",\n  \"note\": \"Обновлено\",\n  \"is_completed\": false\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/habit-checks/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-checks", "1"]
+        }
+      }
+    },
+    {
+      "name": "Habit Checks: Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/habit-checks/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "habit-checks", "1"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": ""
+    }
+  ]
+}

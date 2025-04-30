@@ -3,13 +3,16 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"path/filepath"
+	"time"
+
+	"github.com/joho/godotenv"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"github.com/golang-migrate/migrate/v4"
 	migratepg "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -18,52 +21,108 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() {
+type Config struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DBName   string
+	SSLMode  string
+}
+
+func loadConfig() Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, relying on system environment")
 	}
-	databaseName := "postgres"
-	dbHost := os.Getenv("DB_HOST")
-	dbName := os.Getenv("DB_NAME")
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASSWORD")
-	dbPort := os.Getenv("DB_PORT")
-	sslmode := "disable"
-	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", dbUser, dbPass, dbHost, dbPort, dbName, sslmode)
-	fmt.Println(dbUrl)
-	sqlDB, err := sql.Open(databaseName, dbUrl)
+
+	return Config{
+		Host:     getEnv("DB_HOST", "localhost"),
+		Port:     getEnv("DB_PORT", "5432"),
+		User:     getEnv("DB_USER", "postgres"),
+		Password: getEnv("DB_PASSWORD", "postgres"),
+		DBName:   getEnv("DB_NAME", "postgres"),
+		SSLMode:  getEnv("DB_SSLMODE", "disable"),
+	}
+}
+
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func InitDB() {
+	config := loadConfig()
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		config.User, config.Password, config.Host, config.Port, config.DBName, config.SSLMode)
+
+	
+	sqlDB, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	driver, err := migratepg.WithInstance(sqlDB, &migratepg.Config{})
+	
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	
+	if err := runMigrations(sqlDB, config.DBName); err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
+
+	
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to initialize GORM: %v", err)
+	}
+
+	DB = gormDB
+	log.Println("Database connection established successfully")
+}
+
+func runMigrations(db *sql.DB, dbName string) error {
+	driver, err := migratepg.WithInstance(db, &migratepg.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to create migration driver: %w", err)
 	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("failed to get working dir: %v", err)
+		return fmt.Errorf("failed to get working directory: %w", err)
 	}
-	log.Println("Current working dir:", cwd)
 
 	migrationsPath := filepath.Join(cwd, "internal", "db", "migrations")
 	migrationsURL := fmt.Sprintf("file://%s", migrationsPath)
-	log.Println("Migrations path:", migrationsURL)
+	log.Printf("Running migrations from: %s", migrationsPath)
 
-	m, err := migrate.NewWithDatabaseInstance(migrationsURL, databaseName, driver)
+	m, err := migrate.NewWithDatabaseInstance(migrationsURL, dbName, driver)
 	if err != nil {
-		log.Fatal(err)
-	}
-	if err := m.Up(); err != nil && err.Error() != "no change" {
-		log.Fatal(err)
+		return fmt.Errorf("failed to create migration instance: %w", err)
 	}
 
-	gormDB, err := gorm.Open(postgres.New(postgres.Config{
-		Conn: sqlDB,
-	}), &gorm.Config{})
-	if err != nil {
-		log.Fatal(err)
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("failed to run migrations: %w", err)
 	}
-	DB = gormDB
+
+	return nil
+}
+
+func CloseDB() {
+	if DB != nil {
+		sqlDB, err := DB.DB()
+		if err != nil {
+			log.Printf("Error getting underlying SQL DB: %v", err)
+			return
+		}
+		if err := sqlDB.Close(); err != nil {
+			log.Printf("Error closing database connection: %v", err)
+		}
+	}
 }

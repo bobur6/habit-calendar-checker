@@ -1,36 +1,68 @@
 package middleware
 
 import (
+	"go-rest-project/internal/auth"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"rest-project/internal/auth"
 	"strings"
 )
 
-func AuthRequired() gin.HandlerFunc {
+
+func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing or malformed"})
+		if authHeader == "" {
+			c.AbortWithStatusJSON(401, gin.H{"error": "Authorization header is required"})
 			return
 		}
 
-		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			c.AbortWithStatusJSON(401, gin.H{"error": "Invalid authorization header format"})
+			return
+		}
 
-		_, claims, err := auth.ValidateJWT(tokenStr)
+		token := parts[1]
+		claims, err := auth.ValidateToken(token)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+			switch err {
+			case auth.ErrExpiredToken:
+				c.AbortWithStatusJSON(401, gin.H{"error": "Token has expired"})
+			case auth.ErrEmptyToken:
+				c.AbortWithStatusJSON(401, gin.H{"error": "Token is empty"})
+			default:
+				c.AbortWithStatusJSON(401, gin.H{"error": "Invalid token"})
+			}
 			return
 		}
 
-		// user_id from claims
-		userIDFloat, ok := claims["user_id"].(float64)
+		c.Set("userID", claims.UserID)
+		c.Set("username", claims.Username)
+		c.Set("role", claims.Role)
+	c.Next()
+	}
+}
+
+func RoleMiddleware(roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		roleVal, ok := c.Get("role")
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token payload"})
+			c.AbortWithStatusJSON(401, gin.H{"error": "User role not found in context"})
 			return
 		}
+		role, _ := roleVal.(string)
 
-		c.Set("userID", uint(userIDFloat))
+		hasRole := false
+		for _, allowedRole := range roles {
+			if role == allowedRole {
+				hasRole = true
+				break
+			}
+		}
+
+		if !hasRole {
+			c.AbortWithStatusJSON(403, gin.H{"error": "Insufficient permissions"})
+			return
+		}
 		c.Next()
 	}
 }

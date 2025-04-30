@@ -1,36 +1,80 @@
 version: '3.8'
 
 services:
-  my_postgres_db:
-    image: postgres:17.4-alpine
-    container_name: go-postgres
-    restart: always
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydatabase
-    ports:
-      - "5444:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  my-item-service:
-    depends_on:
-      - my_postgres_db
-    build:
+  app:
+    build: 
       context: .
       dockerfile: Dockerfile
-    image: 'my-item-service-iso'
-    container_name: 'my-item-service-container'
-    environment:
-      DB_HOST: my_postgres_db
-      DB_PORT: 5432
-      DB_USER: myuser
-      DB_PASSWORD: mypassword
-      DB_NAME: mydatabase
+    container_name: habits-app
     ports:
-      - "8888:8080"
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - habit-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: habits-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=habits
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./internal/db/migrations:/app/internal/db/migrations
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - habit-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d habits"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    command: 
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=768MB"
+      - "-c"
+      - "maintenance_work_mem=64MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=7864kB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=2621kB"
+      - "-c"
+      - "min_wal_size=1GB"
+      - "-c"
+      - "max_wal_size=4GB"
+
 volumes:
-  postgres_data:
+  postgres-data:
+    name: habits-postgres-data
+
+networks:
+  habit-network:
+    name: habits-network
+    driver: bridge
