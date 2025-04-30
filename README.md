@@ -1,114 +1,115 @@
-# Habits Tracker API
+# Habit Calendar Checker API
 
-A RESTful API for tracking habits and daily routines.
+![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)
+![Postgres](https://img.shields.io/badge/Postgres-15+-336791?logo=postgresql)
+
+## Overview
+A production-ready RESTful API for tracking habits and daily routines. Built with Go, GORM, PostgreSQL, JWT authentication, role-based access, and full Docker support. Includes ready-to-use Postman Collection for easy API testing.
+
+---
 
 ## Features
+- User registration, login, JWT authentication
+- Full CRUD for habits, habit lists, and daily checks
+- Role-based access control (admin/user)
+- Password hashing (bcrypt)
+- GORM ORM with PostgreSQL
+- Database migrations (auto & manual)
+- Docker & Docker Compose support
+- Ready Postman Collection for API testing
+- Clean project structure & best practices
 
-- User authentication (register, login, profile management)
-- Habit list management
-- Habit tracking with customizable emojis
-- Daily habit checks
-- Role-based access control
-- PostgreSQL database with migrations
-- Docker support
+---
 
-## Prerequisites
+## Tech Stack
+- **Go** (Gin, GORM)
+- **PostgreSQL**
+- **Docker / Docker Compose**
+- **JWT** for authentication
+- **bcrypt** for passwords
 
-- Go 1.21 or later
-- Docker and Docker Compose
-- PostgreSQL 15 or later (if running without Docker)
+---
 
 ## Quick Start
-
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/go-rest-project.git
-   cd go-rest-project
+   git clone https://github.com/bobur6/habit-calendar-checker.git
+   cd habit-calendar-checker
    ```
-
-2. Create a .env file:
-   ```bash
-   # Database configuration
+2. **Configure environment:**
+   - Copy `.env.example` to `.env` and edit if needed:
+   ```env
    DB_HOST=postgres
    DB_PORT=5432
    DB_NAME=habits
    DB_USER=postgres
    DB_PASSWORD=postgres
    DB_SSLMODE=disable
-
-   # Server configuration
    PORT=8080
    GIN_MODE=release
-
-   # JWT configuration
-   JWT_SECRET=your-secret-key-change-in-production
+   JWT_SECRET=your-secret-key
    JWT_EXPIRATION=24h
-
-   # Application configuration
    APP_NAME=Habits Tracker
    APP_ENV=development
    APP_DEBUG=false
    ```
-
-3. Start the application with Docker:
+3. **Run with Docker Compose:**
    ```bash
    docker-compose up --build
    ```
+4. **API available at:** `http://localhost:8080`
 
-The API will be available at `http://localhost:8080`
+---
 
-## API Endpoints
+## Demo & Postman
+- [HabitsTracker.postman_collection.json](./HabitsTracker.postman_collection.json) — Postman collection for API testing.
+- Import the collection to Postman and test all endpoints easily.
 
-### Authentication
+---
 
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login and get JWT token
-
-### User Management
-
-- `GET /api/users/profile` - Get user profile
-- `PUT /api/users/profile` - Update user profile
-- `DELETE /api/users/profile` - Delete user account
-
-### Habit Lists
-
-- `POST /api/habit-lists` - Create a new habit list
-- `GET /api/habit-lists` - Get all user's habit lists
-- `GET /api/habit-lists/{id}` - Get a specific habit list
-- `PUT /api/habit-lists/{id}` - Update a habit list
-- `DELETE /api/habit-lists/{id}` - Delete a habit list
-
-### Habits
-
-- `POST /api/habits` - Create a new habit
-- `GET /api/habits` - Get habits by list
-- `GET /api/habits/{id}` - Get a specific habit
-- `PUT /api/habits/{id}` - Update a habit
-- `DELETE /api/habits/{id}` - Delete a habit
-
-### Habit Checks
-
-- `POST /api/habit-checks` - Create a habit check
-- `GET /api/habit-checks` - Get habit checks
-- `GET /api/habit-checks/{id}` - Get a specific habit check
-- `GET /api/habit-checks/date` - Get habit checks by date
-- `PUT /api/habit-checks/{id}` - Update a habit check
-- `DELETE /api/habit-checks/{id}` - Delete a habit check
-
-## Development
-
-### Running Tests
-```bash
-go test ./...
+## How to use API (Example)
+**User registration:**
+```http
+POST /api/auth/register
+Content-Type: application/json
+{
+  "username": "bobur",
+  "email": "bobur@example.com",
+  "password": "yourpassword"
+}
+```
+**Response:**
+```json
+{
+  "token": "<jwt_token>",
+  "user": { ... }
+}
 ```
 
-### Running Migrations
-Migrations are automatically run when the application starts. To run them manually:
-```bash
-go run cmd/migrate/main.go
+**Add a habit:**
+```http
+POST /api/habits (with JWT in Authorization)
+{
+  "title": "Drink water",
+  "emoji": "💧"
+}
 ```
 
-### Project Structure
+---
+
+## Main Endpoints
+- `POST /api/auth/register` — register
+- `POST /api/auth/login` — login (get JWT)
+- `GET /api/users/profile` — profile
+- `POST /api/habits` — create habit
+- `GET /api/habits` — get all habits
+- `POST /api/habit-checks` — mark habit
+- ...see Postman Collection for more
+
+---
+
+## Project Structure
 ```
 .
 ├── cmd/
