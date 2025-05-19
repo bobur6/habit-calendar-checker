@@ -18,10 +18,8 @@
           "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"testpass\"\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/auth/register",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/auth/register",
+          "host": ["{{base_url}}"],
           "path": ["api", "auth", "register"]
         }
       }
@@ -38,13 +36,40 @@
           "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpass\"\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/auth/login",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/auth/login",
+          "host": ["{{base_url}}"],
           "path": ["api", "auth", "login"]
         }
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Проверяем успешный ответ",
+              "pm.test(\"Статус ответа 200\", function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Проверяем наличие токена в ответе",
+              "pm.test(\"Ответ содержит JWT токен\", function() {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.token).to.exist;",
+              "    pm.expect(jsonData.token).to.be.a('string');",
+              "    pm.expect(jsonData.token.length).to.be.greaterThan(0);",
+              "});",
+              "",
+              "// Сохраняем токен в переменную коллекции",
+              "var jsonData = pm.response.json();",
+              "if (jsonData.token) {",
+              "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+              "    console.log(\"JWT токен успешно сохранен в переменную коллекции\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
     },
     {
       "name": "User: Get Profile",
@@ -54,10 +79,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/users/profile",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/users/profile",
+          "host": ["{{base_url}}"],
           "path": ["api", "users", "profile"]
         }
       }
@@ -75,10 +98,8 @@
           "raw": "{\n  \"username\": \"updateduser\",\n  \"email\": \"updated@example.com\"\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/users/profile",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/users/profile",
+          "host": ["{{base_url}}"],
           "path": ["api", "users", "profile"]
         }
       }
@@ -91,10 +112,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/users/profile",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/users/profile",
+          "host": ["{{base_url}}"],
           "path": ["api", "users", "profile"]
         }
       }
@@ -112,10 +131,8 @@
           "raw": "{\n  \"name\": \"My List\"\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/habit-lists",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-lists",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-lists"]
         }
       }
@@ -128,10 +145,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habit-lists",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-lists",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-lists"]
         }
       }
@@ -144,10 +159,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habit-lists/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-lists/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-lists", "1"]
         }
       }
@@ -165,10 +178,8 @@
           "raw": "{\n  \"name\": \"Updated List\"\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/habit-lists/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-lists/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-lists", "1"]
         }
       }
@@ -181,10 +192,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habit-lists/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-lists/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-lists", "1"]
         }
       }
@@ -202,10 +211,8 @@
           "raw": "{\n  \"name\": \"Drink Water\",\n  \"habit_list_id\": 1\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/habits",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habits",
+          "host": ["{{base_url}}"],
           "path": ["api", "habits"]
         }
       }
@@ -218,10 +225,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habits?list_id=1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habits?list_id=1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habits"],
           "query": [
             { "key": "list_id", "value": "1" }
@@ -237,10 +242,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habits/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habits/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habits", "1"]
         }
       }
@@ -258,10 +261,8 @@
           "raw": "{\n  \"name\": \"Updated Habit\",\n  \"habit_list_id\": 1\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/habits/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habits/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habits", "1"]
         }
       }
@@ -274,10 +275,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habits/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habits/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habits", "1"]
         }
       }
@@ -295,10 +294,8 @@
           "raw": "{\n  \"habit_id\": 1,\n  \"date\": \"2025-04-26\",\n  \"emoji\": \"✅\",\n  \"note\": \"Комментарий\",\n  \"is_completed\": true\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/habit-checks",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-checks",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-checks"]
         }
       }
@@ -311,10 +308,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habit-checks?habit_id=1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-checks?habit_id=1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-checks"],
           "query": [
             { "key": "habit_id", "value": "1" }
@@ -330,10 +325,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habit-checks/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-checks/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-checks", "1"]
         }
       }
@@ -351,10 +344,8 @@
           "raw": "{\n  \"habit_id\": 1,\n  \"date\": \"2025-04-26\",\n  \"emoji\": \"👍\",\n  \"note\": \"Обновлено\",\n  \"is_completed\": false\n}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/habit-checks/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-checks/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-checks", "1"]
         }
       }
@@ -367,10 +358,8 @@
           { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
         ],
         "url": {
-          "raw": "http://localhost:8080/api/habit-checks/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{base_url}}/api/habit-checks/1",
+          "host": ["{{base_url}}"],
           "path": ["api", "habit-checks", "1"]
         }
       }
@@ -380,6 +369,10 @@
     {
       "key": "jwt_token",
       "value": ""
+    },
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
     }
   ]
 }
